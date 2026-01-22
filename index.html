@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目进度跟踪表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #d4463c;
+            --secondary: #1a1a1a;
+            --accent: #f4a261;
+            --bg: #f8f5f1;
+            --card-bg: #ffffff;
+            --text: #2d2d2d;
+            --text-light: #6b6b6b;
+            --border: #e0d5cc;
+            --success: #2a9d8f;
+            --warning: #e76f51;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #ede3d8 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        header {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border-left: 6px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--primary)10, transparent 70%);
+            opacity: 0.1;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .date-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .date-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #b83a31 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(212, 70, 60, 0.2);
+        }
+        
+        .date-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .date-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .countdown-card {
+            background: linear-gradient(135deg, var(--accent) 0%, #e89456 100%);
+        }
+        
+        .projects-section {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--border);
+        }
+        
+        .project-card {
+            background: var(--bg);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .project-card:nth-child(1) { animation-delay: 0.1s; }
+        .project-card:nth-child(2) { animation-delay: 0.2s; }
+        .project-card:nth-child(3) { animation-delay: 0.3s; }
+        .project-card:nth-child(4) { animation-delay: 0.4s; }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border-color: var(--primary);
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .project-status {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-planning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .project-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .progress-container {
+            margin-top: 1rem;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-label {
+            font-size: 0.9rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+        
+        .progress-percentage {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: #e9e4de;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 10px;
+            transition: width 1s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .update-time {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .date-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .project-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 项目进度跟踪表</h1>
+            <div class="date-info">
+                <div class="date-card">
+                    <div class="date-label">当前北京时间</div>
+                    <div class="date-value" id="currentDate"></div>
+                </div>
+                <div class="date-card countdown-card">
+                    <div class="date-label">距离春节最后一天</div>
+                    <div class="date-value" id="countdown"></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="projects-section">
+            <h2 class="section-title">项目概览</h2>
+            
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-name">西格陵兰项目</div>
+                    <div class="project-status status-active">进行中</div>
+                </div>
+                <div class="project-info">
+                    <div class="info-item">
+                        <div class="info-label">实际收客</div>
+                        <div class="info-value">21人</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">余舱量</div>
+                        <div class="info-value" id="greenland-capacity">95.5</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">截止收客日期</div>
+                        <div class="info-value">2026-05-01</div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <span class="progress-label">项目进度</span>
+                        <span class="progress-percentage">18%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 18%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-name">法罗群岛+冰岛</div>
+                    <div class="project-status status-active">进行中</div>
+                </div>
+                <div class="project-info">
+                    <div class="info-item">
+                        <div class="info-label">实际收客</div>
+                        <div class="info-value">4人</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">余舱量</div>
+                        <div class="info-value">18人</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">截止收客日期</div>
+                        <div class="info-value">2026-04-24</div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <span class="progress-label">项目进度</span>
+                        <span class="progress-percentage">18%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 18%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-name">大航海时代</div>
+                    <div class="project-status status-active">进行中</div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                    <div style="font-weight: 600; color: var(--secondary); margin-bottom: 1rem; font-size: 1.1rem;">全程团</div>
+                    <div class="project-info">
+                        <div class="info-item">
+                            <div class="info-label">实际收客</div>
+                            <div class="info-value">5人</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">余舱量</div>
+                            <div class="info-value">7.5</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">截止收客日期</div>
+                            <div class="info-value">2026-03-15</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                    <div style="font-weight: 600; color: var(--secondary); margin-bottom: 1rem; font-size: 1.1rem;">后半程团</div>
+                    <div class="project-info">
+                        <div class="info-item">
+                            <div class="info-label">实际收客</div>
+                            <div class="info-value">3人</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">余舱量</div>
+                            <div class="info-value">7.5</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">截止收客日期</div>
+                            <div class="info-value">2025-03-25</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: var(--secondary); margin-bottom: 1rem; font-size: 1.1rem;">前半程团</div>
+                    <div class="project-info">
+                        <div class="info-item">
+                            <div class="info-label">实际收客</div>
+                            <div class="info-value">0人</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">余舱量</div>
+                            <div class="info-value">9位</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">截止收客日期</div>
+                            <div class="info-value">待定</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <span class="progress-label">总体进度</span>
+                        <span class="progress-percentage">33%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-name">野性不列颠</div>
+                    <div class="project-status status-active">进行中</div>
+                </div>
+                <div class="project-info">
+                    <div class="info-item">
+                        <div class="info-label">实际收客</div>
+                        <div class="info-value">0人</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">余舱量</div>
+                        <div class="info-value">40</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">截止收客日期</div>
+                        <div class="info-value">2026-04-05</div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <span class="progress-label">项目进度</span>
+                        <span class="progress-percentage">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="update-time">最后更新: <span id="updateTime"></span></div>
+            <div style="margin-top: 0.5rem;">页面每日自动更新 | 北京时间 UTC+8</div>
+        </footer>
+    </div>
+
+    <script>
+        // 获取北京时间
+        function getBeijingTime() {
+            const now = new Date();
+            // 北京时间 = UTC+8
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const beijingTime = new Date(utc + (3600000 * 8));
+            return beijingTime;
+        }
+
+        // 格式化日期
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const weekday = weekdays[date.getDay()];
+            
+            return `${year}年${month}月${day}日 ${weekday}`;
+        }
+
+        // 格式化时间
+        function formatTime(date) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        // 计算距离春节最后一天的天数
+        function calculateCountdown() {
+            const beijingTime = getBeijingTime();
+            const springFestivalEnd = new Date('2026-02-14T00:00:00+08:00');
+            
+            const diff = springFestivalEnd - beijingTime;
+            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            
+            if (days > 0) {
+                return `还有 ${days} 天`;
+            } else if (days === 0) {
+                return '就是今天！';
+            } else {
+                return `已过去 ${Math.abs(days)} 天`;
+            }
+        }
+
+        // 更新页面信息
+        function updatePage() {
+            const beijingTime = getBeijingTime();
+            
+            document.getElementById('currentDate').textContent = formatDate(beijingTime);
+            document.getElementById('countdown').textContent = calculateCountdown();
+            document.getElementById('updateTime').textContent = formatDate(beijingTime) + ' ' + formatTime(beijingTime);
+        }
+
+        // 页面加载时更新
+        updatePage();
+        
+        // 每秒更新时间
+        setInterval(updatePage, 1000);
+
+        // 可选：模拟余舱量的变化（根据实际需求，您可以连接到真实数据源）
+        function updateCapacity() {
+            // 这里可以添加从服务器获取实时数据的逻辑
+            // 目前显示固定值
+        }
+    </script>
+</body>
+</html>
